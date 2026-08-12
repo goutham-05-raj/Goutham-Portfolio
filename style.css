@@ -318,7 +318,9 @@ img { max-width: 100%; }
     padding: 4px;
     border-radius: 24px;
     width: 280px;
+    height: 368px;
     flex-shrink: 0;
+    overflow: hidden;
     box-shadow: 0 20px 60px rgba(2, 132, 199, 0.25);
     transition: box-shadow 0.4s ease, transform 0.4s ease;
 }
@@ -340,17 +342,22 @@ img { max-width: 100%; }
     opacity: 1;
 }
 .profile-img {
-    display: block;
-    width: 100%;
-    height: 360px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* Image is stored 90deg CW (sideways). Rotate -90deg to correct. */
+    /* Pre-rotation: width=360px (becomes height), height=280px (becomes width) */
+    width: 368px;
+    height: 280px;
+    max-width: none;
     object-fit: cover;
-    object-position: center top;
-    border-radius: 20px;
-    image-orientation: from-image;
+    object-position: center 20%;
+    border-radius: 16px;
+    transform: translate(-50%, -50%) rotate(-90deg);
     transition: transform 0.4s ease;
 }
 .about-img-frame:hover .profile-img {
-    transform: scale(1.03);
+    transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
 }
 .about-text h3 {
     font-size: 1.8rem;
