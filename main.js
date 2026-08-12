@@ -309,3 +309,43 @@ document.querySelectorAll('.skills-grid .skill-card').forEach((c, i) => {
 document.querySelectorAll('.projects-grid .project-card').forEach((c, i) => {
     c.style.transitionDelay = `${i * 0.07}s`;
 });
+
+// ==============================
+// PROFILE IMAGE — EXIF ORIENTATION FIX
+// Corrects WhatsApp JPEG that is stored rotated 90° clockwise
+// ==============================
+(function fixProfileImageOrientation() {
+    const img = document.querySelector('.profile-img');
+    if (!img) return;
+
+    const fixImage = (src) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.onload = function () {
+            // Check if browser already applied image-orientation: from-image
+            // by comparing natural dimensions. If width > height on a portrait image,
+            // the EXIF rotation was NOT applied — we need to rotate manually.
+            const needsRotation = image.naturalWidth > image.naturalHeight;
+            if (!needsRotation) return; // Browser handled EXIF, we're good
+
+            const canvas = document.createElement('canvas');
+            // Rotate 90° CCW: swap width/height
+            canvas.width = image.naturalHeight;
+            canvas.height = image.naturalWidth;
+            const ctx = canvas.getContext('2d');
+            // Translate to center, rotate, draw
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2); // -90° = counter-clockwise
+            ctx.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
+            img.src = canvas.toDataURL('image/jpeg', 0.92);
+        };
+        image.onerror = () => {}; // Silently fail if cross-origin blocked
+        image.src = src;
+    };
+
+    if (img.complete && img.naturalWidth) {
+        fixImage(img.src);
+    } else {
+        img.addEventListener('load', () => fixImage(img.src), { once: true });
+    }
+})();
